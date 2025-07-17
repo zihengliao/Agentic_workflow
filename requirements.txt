@@ -1,0 +1,5 @@
+requests
+markdownify
+google-search-results
+langchain_community
+tqdm
