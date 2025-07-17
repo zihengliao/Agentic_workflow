@@ -8,8 +8,8 @@
 5. Output the summary to you
 
 # What you will need
-*Qwen LLM is ran locally with Ollama*
-*Serpapi key*
+- *Qwen LLM is ran locally with Ollama*
+- *Serpapi key*
 
 # Demo
 <img width="734" height="979" alt="image" src="https://github.com/user-attachments/assets/e401d78c-4395-481e-987f-8de89eae16b2" />
