@@ -4,7 +4,7 @@
 1. Scrapes the google news engine for information on your query
 2. Visits the sites and reads the articles
 3. Uses Qwen LLM to summarise what it has read
-4. After reading 10 aricles, will summarise everything it has read
+4. After reading up to 10 articles, it will summarise everything it has read
 5. Output the summary to you
 
 # What you will need
