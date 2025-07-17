@@ -77,8 +77,6 @@ def summarise_news(query, news_results):
 
             links_visited += url + "\n"
 
-            # print(f"Processed:  {dic["position"]} - {dic["title"]} - {dic["date"]}")
-
             # some news sites block bots or have a paywall, so we handle exceptions
         except requests.RequestException as e:  
             # print(f"Error fetching {url}: {e}")
