@@ -84,10 +84,16 @@ def summarise_news(query, news_results):
             # print(f"Error fetching {url}: {e}")
             continue
 
-    final_summary = ollama.invoke(f"You're an expert financial analyst who offers top notch advice. I'm an amateur who is \
-                                  interested in the latest news regarding my stock ({query}) so respond accordingly as an expert and change your language to be so as well. \
-                                  Summarise the following information into a small paragraph and tell me whether this is \
-                                  an overall positive or negative: \n\n" + ai_summary_collation)
+    prompt = f"You are a senior financial analyst with deep expertise in equity research, market trends, and investment risk assessment. \
+                Your communication style should be professional, concise, and tailored for an amateur investor. \
+                Your task: \
+                1. Read the provided information about the stock: {query}. \
+                2. Summarise the key points in a short, clear paragraph suitable for a non-expert. \
+                3. Provide a verdict on whether the overall sentiment is positive, negative, or neutral — and briefly explain why. \
+                Here is the information to analyse: \n" +\
+                ai_summary_collation
+    
+    final_summary = ollama.invoke(prompt)
     print(links_visited)
 
     return final_summary
