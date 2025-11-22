@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
     QScrollArea, QLabel, QLineEdit, QPushButton, QSizePolicy
 )
 from PyQt6.QtCore import Qt, QObject, pyqtSignal
-
+from stylesheet import WINDOW_STYLESHEET  
 from summary import summarise_news, google_search   # your backend
 
 
@@ -33,16 +33,15 @@ class ChatBubble(QLabel):
         super().__init__(text)
         self.setWordWrap(True)
         self.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        self.setStyleSheet(
-            f"""
-            background-color: {'#DCF8C6' if is_user else '#E6E6E6'};
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 14px;
-            """
-        )
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
+        # Use object names instead of inline styles
+        if is_user:
+            self.setObjectName("UserBubble")
+        else:
+            self.setObjectName("AssistantBubble")
+
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        
 
 # -----------------------------
 # MAIN WINDOW
@@ -79,6 +78,8 @@ class ChatGPTWindow(QWidget):
         input_layout.addWidget(send_btn)
 
         main_layout.addLayout(input_layout)
+
+        self.setStyleSheet(WINDOW_STYLESHEET)
 
     # Add message bubble safely on UI thread
     def add_message(self, text, is_user=False):
