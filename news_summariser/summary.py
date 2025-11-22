@@ -6,6 +6,7 @@ import argparse
 from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 
@@ -53,44 +54,81 @@ def summarise_news(query, news_results):
     # scraping only the first 10 news articles cause of token limit
     news_results = news_results[:10]
 
-    for dic in tqdm(news_results, desc="Reading news articles"):
-        url = dic["link"]
-        
+    def process_single_article(dic):
+        """Fetch + markdownify + local summary for ONE article."""
+        # Find correct link
+        try:
+            url = dic["link"]
+        except:
+            if "stories" in dic:
+                url = dic["stories"][0]["link"]
+            else:
+                return None, None  # skip this item
+
         headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/115.0.0.0 Safari/537.36"
-        ),
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Referer": "https://www.google.com/",  # trying to avoid bot detection
-    }
-        try: 
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/115.0.0.0 Safari/537.36"
+            ),
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Referer": "https://www.google.com/",
+        }
+
+        try:
             response = requests.get(url, headers=headers, timeout=20)
             response.raise_for_status()
 
             markdown_content = markdownify(response.text).strip() + "\n\n"
 
-            ai_summary = ollama.invoke(f"summarise the following in regards to: {query}" + markdown_content)   
-            ai_summary_collation += ai_summary + "\n"
+            # Summarise with ollama (this will run in the worker thread)
+            ai_summary = ollama.invoke(
+                f"summarise the following in regards to: {query}\n\n{markdown_content}"
+            )
 
-            links_visited += url + "\n"
+            return ai_summary, url
 
-            # some news sites block bots or have a paywall, so we handle exceptions
-        except requests.RequestException as e:  
-            # print(f"Error fetching {url}: {e}")
-            continue
+        except Exception:
+            print("Error processing article:", url)
+            return None, None
+        
+    summaries = []
+    urls_visited_list = []
 
-    prompt = f"You are a senior financial analyst with deep expertise in equity research, market trends, and investment risk assessment. \
-                Your communication style should be professional, concise, and tailored for an amateur investor. \
-                Your task: \
-                1. Read the provided information about the stock: {query}. \
-                2. Summarise the key points in a short, clear paragraph suitable for a non-expert. \
-                3. Provide a verdict on whether the overall sentiment is positive, negative, or neutral — and briefly explain why. \
-                Here is the information to analyse: \n" +\
-                ai_summary_collation
-    
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_news = {
+            executor.submit(process_single_article, dic): dic
+            for dic in news_results
+        }
+
+        # tqdm over completed futures
+        for future in tqdm(as_completed(future_to_news), total=len(news_results), desc="Reading news articles"):
+            result, url = future.result()
+
+            if result:
+                summaries.append(result)
+            if url:
+                urls_visited_list.append(url)
+
+    # Collate thread results
+    ai_summary_collation = "\n".join(summaries)
+    links_visited = "\n".join(urls_visited_list)
+
+
+    prompt = f"""
+        You are a senior financial analyst with expertise in equity research, market trends, and investment risk assessment.
+        Your style is professional, concise, and optimised for a non-expert investor.
+
+        TASK:
+        1. Read the provided information about the stock: {query}.
+        2. Summarise the key points in a short, clear paragraph.
+        3. Provide a verdict (positive / negative / neutral) and briefly justify it.
+
+        INFORMATION TO ANALYSE:
+        {ai_summary_collation}
+        """
+
     final_summary = ollama.invoke(prompt)
     print(links_visited)
 
