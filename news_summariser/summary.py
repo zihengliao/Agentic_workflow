@@ -83,6 +83,7 @@ def summarise_news(query, news_results):
             markdown_content = markdownify(response.text).strip() + "\n\n"
 
             # Summarise with ollama (this will run in the worker thread)
+            # probably better off using multiprocessing since im invoking ollama
             ai_summary = ollama.invoke(
                 f"summarise the following in regards to: {query}\n\n{markdown_content}"
             )
@@ -132,7 +133,8 @@ def summarise_news(query, news_results):
     final_summary = ollama.invoke(prompt)
     print(links_visited)
 
-    return final_summary
+    return final_summary, urls_visited_list
+
 
 
 def main():

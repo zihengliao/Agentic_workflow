@@ -91,4 +91,14 @@ WINDOW_STYLESHEET = """
         QScrollBar::sub-line:vertical {
             height: 0px;
         }
+
+        #SidePanel {
+            background-color: #121212;
+            border-left: 1px solid #333;
+        }
+
+        #SidePanel QLabel {
+            color: white;
+        }
+
         """
