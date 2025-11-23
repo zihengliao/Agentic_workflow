@@ -67,7 +67,7 @@ class AssistantBubble(QWidget):
 class ChatGPTWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("ChatGPT Clone - PyQt6")
+        self.setWindowTitle("News Summariser")
         self.resize(900, 800)
 
         root = QVBoxLayout(self)
