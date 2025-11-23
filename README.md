@@ -14,7 +14,9 @@
 # Demo
 Youtube: https://www.youtube.com/watch?v=rTOTfjAGucM
 
-<img width="734" height="979" alt="image" src="https://github.com/user-attachments/assets/e401d78c-4395-481e-987f-8de89eae16b2" />
-<img width="965" height="669" alt="image" src="https://github.com/user-attachments/assets/882561d7-ea55-45e7-87c1-ee89681d4c69" />
+#### Updated GUI!
+<img width="898" height="1009" alt="image" src="https://github.com/user-attachments/assets/08e13312-4a2b-487a-a201-6689ac8cbeb5" />
+<img width="896" height="999" alt="image" src="https://github.com/user-attachments/assets/375353b1-dde8-424d-ac71-af1fc982d8b6" />
+
 
 
